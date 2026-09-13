@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
 import {
   useActivateService,
   useDeactivateService,
@@ -20,37 +21,43 @@ import { Badge } from "@/components/ui/badge";
 import { CreateServiceDialog } from "./create-service-dialog";
 
 export default function ServicesPage() {
+  const t = useTranslations("services");
+  const tCommon = useTranslations("common");
+  const locale = useLocale();
   const [page, setPage] = useState(0);
   const { data, isLoading, isError } = useServices(page);
   const deactivate = useDeactivateService();
   const activate = useActivateService();
 
+  const currencyFormatter = new Intl.NumberFormat(locale, {
+    style: "currency",
+    currency: "BRL",
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Serviços</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
         <CreateServiceDialog />
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Carregando...</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       )}
-      {isError && (
-        <p className="text-sm text-destructive">
-          Não foi possível carregar os serviços.
-        </p>
-      )}
+      {isError && <p className="text-sm text-destructive">{t("loadError")}</p>}
 
       {data && (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Duração</TableHead>
-                <TableHead>Preço</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{t("name")}</TableHead>
+                <TableHead>{t("duration")}</TableHead>
+                <TableHead>{t("price")}</TableHead>
+                <TableHead>{tCommon("status")}</TableHead>
+                <TableHead className="text-right">
+                  {tCommon("actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -60,7 +67,7 @@ export default function ServicesPage() {
                     colSpan={5}
                     className="text-center text-sm text-muted-foreground"
                   >
-                    Nenhum serviço cadastrado ainda.
+                    {t("empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -69,10 +76,7 @@ export default function ServicesPage() {
                   <TableCell>{service.name}</TableCell>
                   <TableCell>{service.durationMinutes} min</TableCell>
                   <TableCell>
-                    {new Intl.NumberFormat("pt-BR", {
-                      style: "currency",
-                      currency: "BRL",
-                    }).format(service.price)}
+                    {currencyFormatter.format(service.price)}
                   </TableCell>
                   <TableCell>
                     <Badge
@@ -80,7 +84,9 @@ export default function ServicesPage() {
                         service.status === "ACTIVE" ? "default" : "secondary"
                       }
                     >
-                      {service.status === "ACTIVE" ? "Ativo" : "Inativo"}
+                      {service.status === "ACTIVE"
+                        ? tCommon("active")
+                        : tCommon("inactive")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -91,7 +97,7 @@ export default function ServicesPage() {
                         disabled={deactivate.isPending}
                         onClick={() => deactivate.mutate(service.id)}
                       >
-                        Desativar
+                        {tCommon("deactivate")}
                       </Button>
                     ) : (
                       <Button
@@ -100,7 +106,7 @@ export default function ServicesPage() {
                         disabled={activate.isPending}
                         onClick={() => activate.mutate(service.id)}
                       >
-                        Ativar
+                        {tCommon("activate")}
                       </Button>
                     )}
                   </TableCell>
@@ -111,8 +117,11 @@ export default function ServicesPage() {
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Página {data.page + 1} de {Math.max(data.totalPages, 1)} ·{" "}
-              {data.totalElements} serviços
+              {t("pagination", {
+                page: data.page + 1,
+                totalPages: Math.max(data.totalPages, 1),
+                total: data.totalElements,
+              })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -121,7 +130,7 @@ export default function ServicesPage() {
                 disabled={data.first}
                 onClick={() => setPage((p) => p - 1)}
               >
-                Anterior
+                {tCommon("previous")}
               </Button>
               <Button
                 variant="outline"
@@ -129,7 +138,7 @@ export default function ServicesPage() {
                 disabled={data.last}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Próxima
+                {tCommon("next")}
               </Button>
             </div>
           </div>

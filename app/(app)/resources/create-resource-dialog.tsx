@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,16 +18,17 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateResource } from "@/hooks/use-resources";
 
-const schema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  type: z.string().min(1, "Tipo é obrigatório"),
-});
-
-type ResourceFormValues = z.infer<typeof schema>;
-
 export function CreateResourceDialog() {
+  const t = useTranslations("resources");
+  const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
   const createResource = useCreateResource();
+
+  const schema = z.object({
+    name: z.string().min(1, t("nameRequired")),
+    type: z.string().min(1, t("typeRequired")),
+  });
+  type ResourceFormValues = z.infer<typeof schema>;
 
   const {
     register,
@@ -46,24 +48,24 @@ export function CreateResourceDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button>Novo recurso</Button>} />
+      <DialogTrigger render={<Button>{t("new")}</Button>} />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo recurso</DialogTitle>
+          <DialogTitle>{t("createTitle")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
+            <Label htmlFor="name">{t("name")}</Label>
             <Input id="name" {...register("name")} />
             {errors.name && (
               <p className="text-sm text-destructive">{errors.name.message}</p>
             )}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="type">Tipo</Label>
+            <Label htmlFor="type">{t("type")}</Label>
             <Input
               id="type"
-              placeholder="ex: sala, cadeira, equipamento"
+              placeholder={t("typePlaceholder")}
               {...register("type")}
             />
             {errors.type && (
@@ -75,7 +77,7 @@ export function CreateResourceDialog() {
             className="w-full"
             disabled={isSubmitting || createResource.isPending}
           >
-            {createResource.isPending ? "Criando..." : "Criar recurso"}
+            {createResource.isPending ? tCommon("creating") : t("create")}
           </Button>
         </form>
       </DialogContent>

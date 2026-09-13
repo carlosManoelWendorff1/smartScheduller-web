@@ -6,9 +6,9 @@ const USER_COOKIE = "ss_user";
 export interface SessionUser {
   userId: string;
   tenantId: string;
+  name: string;
   role: string;
 }
-
 /**
  * Two cookies on purpose: ss_session holds the JWT and is httpOnly (client
  * JS can never read it - the whole point of the BFF pattern). ss_user holds

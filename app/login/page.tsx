@@ -4,22 +4,23 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
 
-const loginSchema = z.object({
-  email: z.string().email("Email inválido"),
-  password: z.string().min(1, "Senha é obrigatória"),
-});
-
-type LoginValues = z.infer<typeof loginSchema>;
-
 export default function LoginPage() {
+  const t = useTranslations("login");
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const loginSchema = z.object({
+    email: z.string().email(t("emailInvalid")),
+    password: z.string().min(1, t("passwordRequired")),
+  });
+  type LoginValues = z.infer<typeof loginSchema>;
 
   const {
     register,
@@ -39,9 +40,7 @@ export default function LoginPage() {
 
     if (!response.ok) {
       const problem = await response.json();
-      toast.error(
-        problem.detail ?? "Não foi possível entrar. Confira email e senha.",
-      );
+      toast.error(problem.detail ?? t("error"));
       return;
     }
 
@@ -52,12 +51,12 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-muted/30">
       <Card className="w-full max-w-sm">
         <CardHeader>
-          <CardTitle>Entrar no SmartScheduller</CardTitle>
+          <CardTitle>{t("title")}</CardTitle>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">{t("email")}</Label>
               <Input
                 id="email"
                 type="email"
@@ -72,7 +71,7 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Senha</Label>
+              <Label htmlFor="password">{t("password")}</Label>
               <Input id="password" type="password" {...register("password")} />
               {errors.password && (
                 <p className="text-sm text-destructive">
@@ -82,7 +81,7 @@ export default function LoginPage() {
             </div>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? "Entrando..." : "Entrar"}
+              {isSubmitting ? t("submitting") : t("submit")}
             </Button>
           </form>
         </CardContent>

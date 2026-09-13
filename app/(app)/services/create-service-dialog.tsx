@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,22 +17,20 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateService } from "@/hooks/use-services";
 
-const schema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-  description: z.string().optional(),
-  durationMinutes: z.coerce
-    .number()
-    .int()
-    .positive("Duração deve ser maior que zero"),
-  price: z.coerce.number().min(0, "Preço não pode ser negativo"),
-});
-
-type ServiceFormInput = z.input<typeof schema>;
-type ServiceFormValues = z.output<typeof schema>;
-
 export function CreateServiceDialog() {
+  const t = useTranslations("services");
+  const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
   const createService = useCreateService();
+
+  const schema = z.object({
+    name: z.string().min(1, t("nameRequired")),
+    description: z.string().optional(),
+    durationMinutes: z.coerce.number().int().positive(t("durationPositive")),
+    price: z.coerce.number().min(0, t("priceMin")),
+  });
+  type ServiceFormInput = z.input<typeof schema>;
+  type ServiceFormValues = z.output<typeof schema>;
 
   const {
     register,
@@ -51,14 +50,14 @@ export function CreateServiceDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button>Novo serviço</Button>} />
+      <DialogTrigger render={<Button>{t("new")}</Button>} />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo serviço</DialogTitle>
+          <DialogTitle>{t("createTitle")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
+            <Label htmlFor="name">{t("name")}</Label>
             <Input id="name" {...register("name")} />
             {errors.name && (
               <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -66,13 +65,13 @@ export function CreateServiceDialog() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="description">Descrição (opcional)</Label>
+            <Label htmlFor="description">{t("descriptionOptional")}</Label>
             <Input id="description" {...register("description")} />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="durationMinutes">Duração (minutos)</Label>
+              <Label htmlFor="durationMinutes">{t("durationMinutes")}</Label>
               <Input
                 id="durationMinutes"
                 type="number"
@@ -85,7 +84,7 @@ export function CreateServiceDialog() {
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor="price">Preço (R$)</Label>
+              <Label htmlFor="price">{t("priceLabel")}</Label>
               <Input
                 id="price"
                 type="number"
@@ -105,7 +104,7 @@ export function CreateServiceDialog() {
             className="w-full"
             disabled={isSubmitting || createService.isPending}
           >
-            {createService.isPending ? "Criando..." : "Criar serviço"}
+            {createService.isPending ? tCommon("creating") : t("create")}
           </Button>
         </form>
       </DialogContent>

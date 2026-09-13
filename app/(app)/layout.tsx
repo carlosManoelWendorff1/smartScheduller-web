@@ -9,6 +9,7 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 
 export default async function AppLayout({
   children,
@@ -33,6 +34,7 @@ export default async function AppLayout({
             <Separator orientation="vertical" className="h-4" />
           </div>
           <ModeToggle />
+          <LocaleSwitcher />
         </header>
         <main className="flex-1 p-6">{children}</main>
       </SidebarInset>

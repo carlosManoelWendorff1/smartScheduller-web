@@ -1,6 +1,8 @@
+// hooks/use-customers.ts
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import type { CustomerResponse, PageResponse } from "@/lib/types";
 import { toast } from "sonner";
@@ -22,6 +24,7 @@ export interface CreateCustomerInput {
 }
 
 export function useCreateCustomer() {
+  const t = useTranslations("customers");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateCustomerInput) =>
@@ -31,12 +34,18 @@ export function useCreateCustomer() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["customers"] });
-      toast.success("Cliente criado.");
+      toast.success(t("created"));
     },
     onError: (error) => {
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao criar cliente.",
-      );
+      toast.error(error instanceof Error ? error.message : t("createError"));
     },
+  });
+}
+
+export function useAllCustomers() {
+  return useQuery({
+    queryKey: ["customers", "all"],
+    queryFn: () =>
+      apiFetch<PageResponse<CustomerResponse>>(`customers?page=0&size=100`),
   });
 }

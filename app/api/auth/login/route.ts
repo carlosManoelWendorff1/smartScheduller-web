@@ -22,9 +22,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(problem, { status: springResponse.status });
   }
 
-  const { token, userId, tenantId, role } = await springResponse.json();
-  await setSession(token, { userId, tenantId, role });
+  const { token, userId, tenantId, name, role } = await springResponse.json();
+  await setSession(token, { userId, tenantId, name, role });
 
   // Never echo the token back to the client - it already lives in the httpOnly cookie.
-  return NextResponse.json({ userId, tenantId, role });
+  return NextResponse.json({ userId, tenantId, name, role });
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,15 +17,16 @@ import {
 } from "@/components/ui/dialog";
 import { useCreateProfessional } from "@/hooks/use-professionals";
 
-const schema = z.object({
-  name: z.string().min(1, "Nome é obrigatório"),
-});
-
-type ProfessionalFormValues = z.infer<typeof schema>;
-
 export function CreateProfessionalDialog() {
+  const t = useTranslations("professionals");
+  const tCommon = useTranslations("common");
   const [open, setOpen] = useState(false);
   const createProfessional = useCreateProfessional();
+
+  const schema = z.object({
+    name: z.string().min(1, t("nameRequired")),
+  });
+  type ProfessionalFormValues = z.infer<typeof schema>;
 
   const {
     register,
@@ -44,14 +46,14 @@ export function CreateProfessionalDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger render={<Button>Novo profissional</Button>} />
+      <DialogTrigger render={<Button>{t("new")}</Button>} />
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Novo profissional</DialogTitle>
+          <DialogTitle>{t("createTitle")}</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Nome</Label>
+            <Label htmlFor="name">{t("name")}</Label>
             <Input id="name" {...register("name")} />
             {errors.name && (
               <p className="text-sm text-destructive">{errors.name.message}</p>
@@ -64,7 +66,7 @@ export function CreateProfessionalDialog() {
             className="w-full"
             disabled={isSubmitting || createProfessional.isPending}
           >
-            {createProfessional.isPending ? "Criando..." : "Criar profissional"}
+            {createProfessional.isPending ? tCommon("creating") : t("create")}
           </Button>
         </form>
       </DialogContent>

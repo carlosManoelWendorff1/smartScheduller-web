@@ -72,3 +72,18 @@ export interface ResourceResponse {
   createdAt: string;
   updatedAt: string;
 }
+
+export interface AppointmentResponse {
+  id: string;
+  tenantId: string;
+  customerId: string;
+  serviceId: string;
+  professionalId: string | null;
+  resourceId: string | null;
+  startAt: string;
+  endAt: string;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED" | "COMPLETED" | "NO_SHOW";
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+}

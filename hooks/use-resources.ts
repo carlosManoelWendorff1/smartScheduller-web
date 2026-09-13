@@ -2,6 +2,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import type { PageResponse, ResourceResponse } from "@/lib/types";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ export interface CreateResourceInput {
 }
 
 export function useCreateResource() {
+  const t = useTranslations("resources");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateResourceInput) =>
@@ -31,16 +33,15 @@ export function useCreateResource() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resources"] });
-      toast.success("Recurso criado.");
+      toast.success(t("created"));
     },
     onError: (error) =>
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao criar recurso.",
-      ),
+      toast.error(error instanceof Error ? error.message : t("createError")),
   });
 }
 
 export function useDeactivateResource() {
+  const t = useTranslations("resources");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
@@ -49,12 +50,13 @@ export function useDeactivateResource() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resources"] });
-      toast.success("Recurso desativado.");
+      toast.success(t("deactivated"));
     },
   });
 }
 
 export function useActivateResource() {
+  const t = useTranslations("resources");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
@@ -63,7 +65,14 @@ export function useActivateResource() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["resources"] });
-      toast.success("Recurso ativado.");
+      toast.success(t("activated"));
     },
+  });
+}
+export function useAllResources() {
+  return useQuery({
+    queryKey: ["resources", "all"],
+    queryFn: () =>
+      apiFetch<PageResponse<ResourceResponse>>(`resources?page=0&size=100`),
   });
 }

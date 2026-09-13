@@ -2,6 +2,7 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { apiFetch } from "@/lib/api-client";
 import type { PageResponse, ProfessionalResponse } from "@/lib/types";
 import { toast } from "sonner";
@@ -22,6 +23,7 @@ export interface CreateProfessionalInput {
 }
 
 export function useCreateProfessional() {
+  const t = useTranslations("professionals");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: CreateProfessionalInput) =>
@@ -31,16 +33,15 @@ export function useCreateProfessional() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professionals"] });
-      toast.success("Profissional criado.");
+      toast.success(t("created"));
     },
     onError: (error) =>
-      toast.error(
-        error instanceof Error ? error.message : "Erro ao criar profissional.",
-      ),
+      toast.error(error instanceof Error ? error.message : t("createError")),
   });
 }
 
 export function useDeactivateProfessional() {
+  const t = useTranslations("professionals");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
@@ -49,12 +50,13 @@ export function useDeactivateProfessional() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professionals"] });
-      toast.success("Profissional desativado.");
+      toast.success(t("deactivated"));
     },
   });
 }
 
 export function useActivateProfessional() {
+  const t = useTranslations("professionals");
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (id: string) =>
@@ -63,7 +65,17 @@ export function useActivateProfessional() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["professionals"] });
-      toast.success("Profissional ativado.");
+      toast.success(t("activated"));
     },
+  });
+}
+
+export function useAllProfessionals() {
+  return useQuery({
+    queryKey: ["professionals", "all"],
+    queryFn: () =>
+      apiFetch<PageResponse<ProfessionalResponse>>(
+        `professionals?page=0&size=100`,
+      ),
   });
 }

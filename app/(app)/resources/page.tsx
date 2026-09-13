@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   useActivateResource,
   useDeactivateResource,
@@ -20,6 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { CreateResourceDialog } from "./create-resource-dialog";
 
 export default function ResourcesPage() {
+  const t = useTranslations("resources");
+  const tCommon = useTranslations("common");
   const [page, setPage] = useState(0);
   const { data, isLoading, isError } = useResources(page);
   const deactivate = useDeactivateResource();
@@ -28,28 +31,26 @@ export default function ResourcesPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Recursos</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
         <CreateResourceDialog />
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Carregando...</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       )}
-      {isError && (
-        <p className="text-sm text-destructive">
-          Não foi possível carregar os recursos.
-        </p>
-      )}
+      {isError && <p className="text-sm text-destructive">{t("loadError")}</p>}
 
       {data && (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Tipo</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{t("name")}</TableHead>
+                <TableHead>{t("type")}</TableHead>
+                <TableHead>{tCommon("status")}</TableHead>
+                <TableHead className="text-right">
+                  {tCommon("actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -59,7 +60,7 @@ export default function ResourcesPage() {
                     colSpan={4}
                     className="text-center text-sm text-muted-foreground"
                   >
-                    Nenhum recurso cadastrado ainda.
+                    {t("empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -73,7 +74,9 @@ export default function ResourcesPage() {
                         resource.status === "ACTIVE" ? "default" : "secondary"
                       }
                     >
-                      {resource.status === "ACTIVE" ? "Ativo" : "Inativo"}
+                      {resource.status === "ACTIVE"
+                        ? tCommon("active")
+                        : tCommon("inactive")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -84,7 +87,7 @@ export default function ResourcesPage() {
                         disabled={deactivate.isPending}
                         onClick={() => deactivate.mutate(resource.id)}
                       >
-                        Desativar
+                        {tCommon("deactivate")}
                       </Button>
                     ) : (
                       <Button
@@ -93,7 +96,7 @@ export default function ResourcesPage() {
                         disabled={activate.isPending}
                         onClick={() => activate.mutate(resource.id)}
                       >
-                        Ativar
+                        {tCommon("activate")}
                       </Button>
                     )}
                   </TableCell>
@@ -104,8 +107,11 @@ export default function ResourcesPage() {
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Página {data.page + 1} de {Math.max(data.totalPages, 1)} ·{" "}
-              {data.totalElements} recursos
+              {t("pagination", {
+                page: data.page + 1,
+                totalPages: Math.max(data.totalPages, 1),
+                total: data.totalElements,
+              })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -114,7 +120,7 @@ export default function ResourcesPage() {
                 disabled={data.first}
                 onClick={() => setPage((p) => p - 1)}
               >
-                Anterior
+                {tCommon("previous")}
               </Button>
               <Button
                 variant="outline"
@@ -122,7 +128,7 @@ export default function ResourcesPage() {
                 disabled={data.last}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Próxima
+                {tCommon("next")}
               </Button>
             </div>
           </div>

@@ -2,6 +2,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useCustomers } from "@/hooks/use-customers";
 import { Button } from "@/components/ui/button";
 import {
@@ -16,34 +17,32 @@ import { Badge } from "@/components/ui/badge";
 import { CreateCustomerDialog } from "./create-customer-dialog";
 
 export default function CustomersPage() {
+  const t = useTranslations("customers");
+  const tCommon = useTranslations("common");
   const [page, setPage] = useState(0);
   const { data, isLoading, isError } = useCustomers(page);
 
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Clientes</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
         <CreateCustomerDialog />
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Carregando...</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       )}
-      {isError && (
-        <p className="text-sm text-destructive">
-          Não foi possível carregar os clientes.
-        </p>
-      )}
+      {isError && <p className="text-sm text-destructive">{t("loadError")}</p>}
 
       {data && (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Telefone</TableHead>
-                <TableHead>Status</TableHead>
+                <TableHead>{t("name")}</TableHead>
+                <TableHead>{t("email")}</TableHead>
+                <TableHead>{t("phone")}</TableHead>
+                <TableHead>{tCommon("status")}</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -53,7 +52,7 @@ export default function CustomersPage() {
                     colSpan={4}
                     className="text-center text-sm text-muted-foreground"
                   >
-                    Nenhum cliente cadastrado ainda.
+                    {t("empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -68,7 +67,9 @@ export default function CustomersPage() {
                         customer.status === "ACTIVE" ? "default" : "secondary"
                       }
                     >
-                      {customer.status === "ACTIVE" ? "Ativo" : "Inativo"}
+                      {customer.status === "ACTIVE"
+                        ? tCommon("active")
+                        : tCommon("inactive")}
                     </Badge>
                   </TableCell>
                 </TableRow>
@@ -78,8 +79,11 @@ export default function CustomersPage() {
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Página {data.page + 1} de {Math.max(data.totalPages, 1)} ·{" "}
-              {data.totalElements} clientes
+              {t("pagination", {
+                page: data.page + 1,
+                totalPages: Math.max(data.totalPages, 1),
+                total: data.totalElements,
+              })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -88,7 +92,7 @@ export default function CustomersPage() {
                 disabled={data.first}
                 onClick={() => setPage((p) => p - 1)}
               >
-                Anterior
+                {tCommon("previous")}
               </Button>
               <Button
                 variant="outline"
@@ -96,7 +100,7 @@ export default function CustomersPage() {
                 disabled={data.last}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Próxima
+                {tCommon("next")}
               </Button>
             </div>
           </div>

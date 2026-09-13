@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   Users,
   Briefcase,
@@ -9,9 +10,7 @@ import {
   Box,
   CalendarDays,
   ShieldCheck,
-  LogOut,
 } from "lucide-react";
-import { useRouter } from "next/navigation";
 import {
   Sidebar,
   SidebarContent,
@@ -24,24 +23,20 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { UserMenu } from "@/components/user-menu";
 import type { SessionUser } from "@/lib/session";
-
-const NAV_ITEMS = [
-  { href: "/customers", label: "Clientes", icon: Users },
-  { href: "/services", label: "Serviços", icon: Briefcase },
-  { href: "/professionals", label: "Profissionais", icon: UserRound },
-  { href: "/resources", label: "Recursos", icon: Box },
-  { href: "/appointments", label: "Agendamentos", icon: CalendarDays },
-];
 
 export function AppSidebar({ user }: { user: SessionUser }) {
   const pathname = usePathname();
-  const router = useRouter();
+  const t = useTranslations("nav");
 
-  async function handleLogout() {
-    await fetch("/api/auth/logout", { method: "POST" });
-    router.push("/login");
-  }
+  const NAV_ITEMS = [
+    { href: "/customers", label: t("customers"), icon: Users },
+    { href: "/services", label: t("services"), icon: Briefcase },
+    { href: "/professionals", label: t("professionals"), icon: UserRound },
+    { href: "/resources", label: t("resources"), icon: Box },
+    { href: "/appointments", label: t("appointments"), icon: CalendarDays },
+  ];
 
   return (
     <Sidebar collapsible="icon">
@@ -58,7 +53,9 @@ export function AppSidebar({ user }: { user: SessionUser }) {
 
       <SidebarContent>
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel>
+            {t("customers") ? "Menu" : "Menu"}
+          </SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
               {NAV_ITEMS.map((item) => (
@@ -82,11 +79,11 @@ export function AppSidebar({ user }: { user: SessionUser }) {
                     render={
                       <Link href="/admin/users">
                         <ShieldCheck />
-                        <span>Usuários (admin)</span>
+                        <span>{t("adminUsers")}</span>
                       </Link>
                     }
                     isActive={pathname.startsWith("/admin")}
-                    tooltip="Usuários (admin)"
+                    tooltip={t("adminUsers")}
                   />
                 </SidebarMenuItem>
               )}
@@ -98,15 +95,7 @@ export function AppSidebar({ user }: { user: SessionUser }) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
-            <div className="px-2 py-1 text-xs text-muted-foreground group-data-[collapsible=icon]:hidden">
-              Papel: {user.role}
-            </div>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton onClick={handleLogout} tooltip="Sair">
-              <LogOut />
-              <span>Sair</span>
-            </SidebarMenuButton>
+            <UserMenu user={user} />
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarFooter>

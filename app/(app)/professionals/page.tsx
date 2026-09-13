@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   useActivateProfessional,
   useDeactivateProfessional,
@@ -19,6 +20,8 @@ import { Badge } from "@/components/ui/badge";
 import { CreateProfessionalDialog } from "./create-professional-dialog";
 
 export default function ProfessionalsPage() {
+  const t = useTranslations("professionals");
+  const tCommon = useTranslations("common");
   const [page, setPage] = useState(0);
   const { data, isLoading, isError } = useProfessionals(page);
   const deactivate = useDeactivateProfessional();
@@ -27,27 +30,25 @@ export default function ProfessionalsPage() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Profissionais</h1>
+        <h1 className="text-xl font-semibold">{t("title")}</h1>
         <CreateProfessionalDialog />
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Carregando...</p>
+        <p className="text-sm text-muted-foreground">{tCommon("loading")}</p>
       )}
-      {isError && (
-        <p className="text-sm text-destructive">
-          Não foi possível carregar os profissionais.
-        </p>
-      )}
+      {isError && <p className="text-sm text-destructive">{t("loadError")}</p>}
 
       {data && (
         <>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Nome</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Ações</TableHead>
+                <TableHead>{t("name")}</TableHead>
+                <TableHead>{tCommon("status")}</TableHead>
+                <TableHead className="text-right">
+                  {tCommon("actions")}
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -57,7 +58,7 @@ export default function ProfessionalsPage() {
                     colSpan={3}
                     className="text-center text-sm text-muted-foreground"
                   >
-                    Nenhum profissional cadastrado ainda.
+                    {t("empty")}
                   </TableCell>
                 </TableRow>
               )}
@@ -72,7 +73,9 @@ export default function ProfessionalsPage() {
                           : "secondary"
                       }
                     >
-                      {professional.status === "ACTIVE" ? "Ativo" : "Inativo"}
+                      {professional.status === "ACTIVE"
+                        ? tCommon("active")
+                        : tCommon("inactive")}
                     </Badge>
                   </TableCell>
                   <TableCell className="text-right">
@@ -83,7 +86,7 @@ export default function ProfessionalsPage() {
                         disabled={deactivate.isPending}
                         onClick={() => deactivate.mutate(professional.id)}
                       >
-                        Desativar
+                        {tCommon("deactivate")}
                       </Button>
                     ) : (
                       <Button
@@ -92,7 +95,7 @@ export default function ProfessionalsPage() {
                         disabled={activate.isPending}
                         onClick={() => activate.mutate(professional.id)}
                       >
-                        Ativar
+                        {tCommon("activate")}
                       </Button>
                     )}
                   </TableCell>
@@ -103,8 +106,11 @@ export default function ProfessionalsPage() {
 
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground">
-              Página {data.page + 1} de {Math.max(data.totalPages, 1)} ·{" "}
-              {data.totalElements} profissionais
+              {t("pagination", {
+                page: data.page + 1,
+                totalPages: Math.max(data.totalPages, 1),
+                total: data.totalElements,
+              })}
             </p>
             <div className="flex gap-2">
               <Button
@@ -113,7 +119,7 @@ export default function ProfessionalsPage() {
                 disabled={data.first}
                 onClick={() => setPage((p) => p - 1)}
               >
-                Anterior
+                {tCommon("previous")}
               </Button>
               <Button
                 variant="outline"
@@ -121,7 +127,7 @@ export default function ProfessionalsPage() {
                 disabled={data.last}
                 onClick={() => setPage((p) => p + 1)}
               >
-                Próxima
+                {tCommon("next")}
               </Button>
             </div>
           </div>

@@ -1,0 +1,71 @@
+.rbc-calendar {
+  font-family: inherit;
+  color: var(--foreground);
+}
+
+.rbc-off-range-bg {
+  background: var(--muted);
+  opacity: 0.5;
+}
+
+.rbc-today {
+  background: color-mix(in oklch, var(--primary), transparent 92%);
+}
+
+.rbc-header,
+.rbc-time-header-content,
+.rbc-time-content,
+.rbc-month-view,
+.rbc-time-view,
+.rbc-agenda-view table.rbc-agenda-table {
+  border-color: var(--border);
+}
+
+.rbc-toolbar button {
+  color: var(--foreground);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: transparent;
+}
+
+.rbc-toolbar button:hover {
+  background: var(--muted);
+}
+
+.rbc-toolbar button.rbc-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: none;
+}
+
+.rbc-event {
+  border: none;
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+}
+
+.rbc-event-pending {
+  background: var(--muted-foreground);
+  opacity: 0.7;
+}
+.rbc-event-confirmed {
+  background: var(--primary);
+  color: var(--primary-foreground);
+}
+.rbc-event-completed {
+  background: #16a34a;
+  color: white;
+}
+.rbc-event-cancelled {
+  background: var(--muted);
+  color: var(--muted-foreground);
+  text-decoration: line-through;
+}
+.rbc-event-no-show {
+  background: var(--destructive);
+  color: white;
+}
+
+.rbc-selected {
+  outline: 2px solid var(--ring);
+}
